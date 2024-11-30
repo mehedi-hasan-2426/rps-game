@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rock Paper Scissors</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-container {
+            max-width: 100%;
+            width: 350px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 24px;
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
+        .score {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: grid;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        button:active {
+            background: #0056b3;
+        }
+
+        .results {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .round-result {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .final-result {
+            color: #007bff;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .new-game {
+            background: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Rock Paper Scissors</h1>
+        <div class="score" id="score">Round: 0/6</div>
+        <div class="buttons">
+            <button onclick="play('rock')">Rock 🪨</button>
+            <button onclick="play('paper')">Paper 📄</button>
+            <button onclick="play('scissors')">Scissors ✂️</button>
+        </div>
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        let userScore = 0;
+        let computerScore = 0;
+        let rounds = 0;
+        
+        function computerChoice() {
+            const choices = ['rock', 'paper', 'scissors'];
+            return choices[Math.floor(Math.random() * 3)];
+        }
+
+        function determineWinner(userChoice, computerChoice) {
+            if (userChoice === computerChoice) return 'tie';
+            
+            if ((userChoice === 'rock' && computerChoice === 'scissors') ||
+                (userChoice === 'paper' && computerChoice === 'rock') ||
+                (userChoice === 'scissors' && computerChoice === 'paper')) {
+                return 'user';
+            }
+            return 'computer';
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = 
+                `You: ${userScore} | Computer: ${computerScore} | Round: ${rounds}/6`;
+        }
+
+        function addNewGameButton() {
+            const button = document.createElement('button');
+            button.textContent = 'Play New Game';
+            button.className = 'new-game';
+            button.onclick = () => {
+                userScore = 0;
+                computerScore = 0;
+                rounds = 0;
+                document.getElementById('results').innerHTML = '';
+                updateScore();
+                const buttons = document.querySelectorAll('.buttons button');
+                buttons.forEach(btn => btn.disabled = false);
+                button.remove();
+            };
+            document.querySelector('.buttons').appendChild(button);
+        }
+
+        function play(userChoice) {
+            if (rounds >= 6) return;
+
+            const compChoice = computerChoice();
+            const winner = determineWinner(userChoice, compChoice);
+            rounds++;
+
+            if (winner === 'user') userScore++;
+            else if (winner === 'computer') computerScore++;
+
+            const result = document.createElement('div');
+            result.className = 'round-result';
+            result.textContent = `Round ${rounds}: You chose ${userChoice}, Computer chose ${compChoice}. ${
+                winner === 'tie' ? "It's a tie!" : 
+                winner === 'user' ? "You win!" : "Computer wins!"
+            }`;
+            
+            document.getElementById('results').prepend(result);
+            updateScore();
+
+            if (rounds === 6) {
+                const finalResult = document.createElement('div');
+                finalResult.className = 'final-result';
+                finalResult.textContent = userScore > computerScore ? 
+                    '🎉 Congratulations! You won the game! 🎉' :
+                    userScore < computerScore ? 
+                    '🤖 Computer won the game!' : '🤝 The game is a tie!';
+                document.getElementById('results').prepend(finalResult);
+                
+                document.querySelectorAll('.buttons button').forEach(btn => btn.disabled = true);
+                addNewGameButton();
+            }
+        }
+    </script>
+</body>
+</html>
